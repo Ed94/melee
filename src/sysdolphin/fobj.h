@@ -61,20 +61,49 @@ typedef struct _HSD_FObjData {
     Vec p;
 } FObjData;
 
+// Address: 8036A938 -> 8036A940
 HSD_ObjAllocData* HSD_FObjGetAllocData(void);
+
+// Address: 8036A944 -> 8036a970
 void HSD_FObjInitAllocData(void);
+
+// Address: 8036A974 -> 8036A998
 void HSD_FObjRemove(HSD_FObj* fobj);
+
+// Address: 8036A99C -> 8036AA40
 void HSD_FObjRemoveAll(HSD_FObj* fobj);
+
+// Address: 8036AA44 -> 8036AA60
 u8 HSD_FObjSetState(HSD_FObj* fobj, u8 state);
+
+// Address: 8036AA64 -> 8036AA7C
 u32 HSD_FObjGetState(HSD_FObj* fobj);
+
+// Address: 8036AA80 -> 8036AB20
 void HSD_FObjReqAnimAll(HSD_FObj* fobj, f32 frame);
+
+// Address: 8036AB24 -> 8036AB74
 void HSD_FObjStopAnim(HSD_FObj* fobj, void* obj, void (*callback)(), f32 frame);
+
+// Address: 8036AB78 -> 8036AC0C
 void HSD_FObjStopAnimAll(HSD_FObj* fobj, void* obj, void (*callback)(), f32 frame);
+
+// Address: 8036AE70 -> 8036B02C
 void FObjUpdateAnim(HSD_FObj* fobj, void* obj, void (*callback)(void*, u32, FObjData));
+
+// Address: 8036B6CC -> 8036B738
 void HSD_FObjInterpretAnim(HSD_FObj* fobj, void* obj, void (*callback)(), f32 rate);
+
+// Address: 8036B6CC -> 8036B738
 void HSD_FObjInterpretAnimAll(HSD_FObj* fobj, void* obj, void (*callback)(), f32 rate);
+
+// Address: 8036B73C -> 8036B844
 HSD_FObj* HSD_FObjLoadDesc(HSD_FObjDesc* desc);
+
+// Address: 8036B848 -> 8036B8A0
 HSD_FObj* HSD_FObjAlloc(void);
+
+// Address: 8036B8A4 -> 8036B8CC
 void HSD_FObjFree(HSD_FObj* fobj);
 
 #endif

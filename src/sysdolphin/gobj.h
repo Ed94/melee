@@ -36,5 +36,8 @@ typedef struct _HSD_GObjProc {
 
 #endif
 
+// Address: 80390C5C -> 80390C80
 BOOL func_80390C5C(HSD_GObj* gobj);
+
+// Address: 80390C84 -> 80390Cd3
 BOOL func_80390C84(HSD_GObj* gobj);

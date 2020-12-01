@@ -17,12 +17,26 @@ typedef struct _HSD_IDTable {
     struct _IDEntry table[101];
 } HSD_IDTable;
 
+
+// Address: 8037CD80 -> 8037CD88
 HSD_ObjAllocData* HSD_IDGetAllocData(void);
+
+// Address: 8037CD8C -> 8037CDB8
 void HSD_IDInitAllocData(void);
+
+// Address: 8037CDBC -> 8037CDE8
 void HSD_IDSetup(void);
+
+// Address: 8037CDEC -> 8037CEE4
 void HSD_IDInsertToTable(HSD_IDTable* table, u32 id, void* data);
+
+// Address: 8037CEE8 -> 8037CF94
 void HSD_IDRemoveByIDFromTable(HSD_IDTable* table, u32 id);
+
+// Address: 8037CF98 -> 8037D01C
 void* HSD_IDGetDataFromTable(HSD_IDTable* table, u32 id, s32* success);
+
+// Address: 8037D020 -> 8037D04C
 void _HSD_IDForgetMemory(void);
 
 #endif

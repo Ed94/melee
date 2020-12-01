@@ -29,10 +29,19 @@ typedef struct _HSD_ObjAllocData {
     struct _HSD_ObjAllocData* next;
 } HSD_ObjAllocData;
 
+// Address: 8037A94C -> 8037A964
 void HSD_ObjSetHeap(u32 size, void* ptr);
+
+// Address: 8037A968 -> 8037ABC4
 s32	HSD_ObjAllocAddFree(HSD_ObjAllocData* data, u32 num);
+
+// Address: 8037ABC8 -> 8037AD1C
 void* HSD_ObjAlloc(HSD_ObjAllocData* data);
+
+// Address: 8037AD20 -> 8037AD44
 void HSD_ObjFree(HSD_ObjAllocData* data, void* obj);
+
+// Address: 8037AE28 -> 8037AE30
 void _HSD_ObjAllocForgetMemory(void);
 
 #endif

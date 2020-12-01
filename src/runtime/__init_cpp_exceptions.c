@@ -6,6 +6,9 @@ extern s32 lbl_804D5B40; //fragmentID
 extern s32 __register_fragment(struct __eti_init_info *, char*);
 extern void __unregister_fragment(s32);
 
+// Address  : 80322F20 -> 80322F24?
+// Offset   : 31FE20
+// GenSymbol: func_80322F20?
 extern asm char* GetR2(void)
 {
     nofralloc
@@ -13,6 +16,9 @@ extern asm char* GetR2(void)
     blr
 }
 
+// Address  : 80322F28 -> 80322F58?
+// Offset   : 
+// GenSymbol: None?
 extern void __fini_cpp_exceptions(void)
 {
 	if (lbl_804D5B40 != -2) {
@@ -21,6 +27,9 @@ extern void __fini_cpp_exceptions(void)
 	}
 }
 
+// Address  : 80322F5c -> 803230A4?
+// Offset   :
+// GenSymbol: None?
 // Left as asm due to lbl_80005918 being in extabindex, which throws an error about an incompatible section
 extern asm void __init_cpp_exceptions(void)
 {

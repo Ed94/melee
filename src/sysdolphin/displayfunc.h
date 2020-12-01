@@ -7,6 +7,7 @@
 
 #include "jobj.h"
 
+// Address: 803738A0 -> 803738CC
 void HSD_ZListInitAllocData(void);
 
 #endif

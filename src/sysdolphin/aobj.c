@@ -460,6 +460,7 @@ lbl_8036474C:
     /* 80364764 00361344  4E 80 00 20 */	blr 
 }
 
+// Address: 80364768 -> 803647D8
 asm void func_80364768(void)
 {
     nofralloc
@@ -811,6 +812,7 @@ lbl_80364BF4:
     /* 80364C04 003617E4  4E 80 00 20 */	blr 
 }
 
+// Address: 80364C08 -> 80365308
 asm void func_80364C08(void)
 {
     nofralloc

@@ -31,7 +31,12 @@ typedef struct _HSD_WObjAnim {
     struct _HSD_RObjAnimJoint* robjanim;
 } HSD_WObjAnim;
 
+
+
+// Address: 8037D050 -> 8037D090
 void HSD_WObjRemoveAnim(HSD_WObj* wobj);
+
+// Address: 8037D094 -> 8037D0E0
 void HSD_WObjReqAnim(HSD_WObj* wobj, f32 frame);
 
 #endif

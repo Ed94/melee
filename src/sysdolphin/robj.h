@@ -85,9 +85,16 @@ typedef struct _HSD_RObjAnimJoint {
 } HSD_RObjAnimJoint;
 
 
+// Address: 8037AE34 -> 8037AE74
 void HSD_RObjInitAllocData(void);
+
+// Address: 8037AE78 -> 8037AE80
 HSD_ObjAllocData* HSD_RObjGetAllocData(void);
+
+// Address: 8037AE84 -> 8037AE8C
 HSD_ObjAllocData* HSD_RvalueObjGetAllocData(void);
+
+// Address: 8037AE90 -> 8037AEA4
 void HSD_RObjSetFlags(HSD_RObj* robj, u32 flags);
 
 #endif
