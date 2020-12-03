@@ -1,26 +1,34 @@
 #include "tev.h"
 
+
+
 extern void* lbl_80405B98;
 
 extern HSD_ObjAllocData lbl_804C07F8; // render_alloc_data
 extern HSD_ObjAllocData lbl_804C0824; // tevreg_alloc_data
 extern HSD_ObjAllocData lbl_804C0850; // chan_alloc_data
 
-extern s32 lbl_804D7600; // state_num_chans
+extern s32   lbl_804D7600; // state_num_chans
 extern void* lbl_804D7604; // chan_chan
 extern void* lbl_804D760C;
+
+
+
+#ifndef USE_ASM_VERSION
+
+
 
 #ifdef NON_MATCHING
 void HSD_RenderInitAllocData(void)
 {
-    HSD_ObjAllocInit(&lbl_804C07F8, 0x1C, 4);
-    HSD_ObjAllocInit(&lbl_804C0824, 0x14, 4);
-    HSD_ObjAllocInit(&lbl_804C0850, 0x30, 4);
+	HSD_ObjAllocInit(&lbl_804C07F8, 0x1C, 4);
+	HSD_ObjAllocInit(&lbl_804C0824, 0x14, 4);
+	HSD_ObjAllocInit(&lbl_804C0850, 0x30, 4);
 }
 #else
 asm void HSD_RenderInitAllocData(void) 
 {
-    nofralloc
+nofralloc
 /* 80362024 0035EC04  7C 08 02 A6 */	mflr r0
 /* 80362028 0035EC08  3C 60 80 4C */	lis r3, lbl_804C07F8@ha
 /* 8036202C 0035EC0C  90 01 00 04 */	stw r0, 4(r1)
@@ -49,22 +57,22 @@ asm void HSD_RenderInitAllocData(void)
 
 HSD_ObjAllocData* HSD_RenderGetAllocData(void)
 {
-    return &lbl_804C07F8;
+	return &lbl_804C07F8;
 }
 
 HSD_ObjAllocData* HSD_TevRegGetAllocData(void)
 {
-    return &lbl_804C0824;
+	return &lbl_804C0824;
 }
 
 HSD_ObjAllocData* HSD_ChanGetAllocData(void)
 {
-    return &lbl_804C0850;
+	return &lbl_804C0850;
 }
 
 asm void HSD_SetupChannel(void* ch)
 {
-    nofralloc
+nofralloc
 /* 803620A4 0035EC84  7C 08 02 A6 */	mflr r0
 /* 803620A8 0035EC88  90 01 00 04 */	stw r0, 4(r1)
 /* 803620AC 0035EC8C  94 21 FF A0 */	stwu r1, -0x60(r1)
@@ -287,8 +295,64 @@ lbl_803623BC:
 #pragma peephole on
 void HSD_StateSetNumChans(s32 num)
 {
-    if (lbl_804D7600 != num) {
-        GXSetNumChans(num & 0xFF);
-    }
+	if (lbl_804D7600 != num)
+	{
+		GXSetNumChans(num & 0xFF);
+	}
 }
 #pragma pop
+
+
+
+#else   // ASM
+
+
+
+asm HSD_ObjAllocData* HSD_RenderGetAllocData(void)
+{
+nofralloc
+/* 80362080 0035EC60  3C 60 80 4C */	lis r3, lbl_804C07F8@ha
+/* 80362084 0035EC64  38 63 07 F8 */	addi r3, r3, lbl_804C07F8@l
+/* 80362088 0035EC68  4E 80 00 20 */	blr 
+}
+
+asm HSD_ObjAllocData* HSD_TevRegGetAllocData(void)
+{
+nofralloc
+/* 8036208C 0035EC6C  3C 60 80 4C */	lis r3, lbl_804C0824@ha
+/* 80362090 0035EC70  38 63 08 24 */	addi r3, r3, lbl_804C0824@l
+/* 80362094 0035EC74  4E 80 00 20 */	blr 
+}
+
+asm HSD_ObjAllocData* HSD_ChanGetAllocData(void)
+{
+nofralloc
+/* 80362098 0035EC78  3C 60 80 4C */	lis r3, lbl_804C0850@ha
+/* 8036209C 0035EC7C  38 63 08 50 */	addi r3, r3, lbl_804C0850@l
+/* 803620A0 0035EC80  4E 80 00 20 */	blr 
+}
+
+#pragma push
+#pragma peephole on
+asm void HSD_StateSetNumChans(s32 num)
+{
+nofralloc
+/* 803623D0 0035EFB0  7C 08 02 A6 */	mflr r0
+/* 803623D4 0035EFB4  90 01 00 04 */	stw r0, 4(r1)
+/* 803623D8 0035EFB8  94 21 FF F8 */	stwu r1, -8(r1)
+/* 803623DC 0035EFBC  80 0D BF 60 */	lwz r0, lbl_804D7600-_SDA_BASE_(r13)
+/* 803623E0 0035EFC0  7C 00 18 00 */	cmpw r0, r3
+/* 803623E4 0035EFC4  41 82 00 0C */	beq lbl_803623F0
+/* 803623E8 0035EFC8  54 63 06 3E */	clrlwi r3, r3, 0x18
+/* 803623EC 0035EFCC  4B FD C1 71 */	bl func_8033E55C
+lbl_803623F0:
+/* 803623F0 0035EFD0  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 803623F4 0035EFD4  38 21 00 08 */	addi r1, r1, 8
+/* 803623F8 0035EFD8  7C 08 03 A6 */	mtlr r0
+/* 803623FC 0035EFDC  4E 80 00 20 */	blr 
+}
+#pragma pop
+
+
+
+#endif 

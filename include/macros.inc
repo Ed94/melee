@@ -15,6 +15,9 @@ BSS section:
 	.bss:	0x00000000	0x804316C0	0x804D79C9
 Entry Point: 0x8000522C
 */
+
+
+
 # PowerPC Register Constants
 .set r0, 0
 .set r1, 1
@@ -90,8 +93,10 @@ Entry Point: 0x8000522C
 .set qr7, 7
 
 # TODO: get rid of these
+
 # Small Data Area (read/write) Base
 .set _SDA_BASE_, 0x804DB6A0
+
 # Small Data Area (read only) Base
 .set _SDA2_BASE_, 0x804DF9E0
 

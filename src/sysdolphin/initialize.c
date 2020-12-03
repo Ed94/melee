@@ -1,7 +1,12 @@
+// Parent Header
 #include "initialize.h"
+
+
 
 #include "leak.h"
 #include "video.h"
+
+
 
 extern void* lbl_804C0948[HSD_VI_XFB_MAX]; //FrameBuffer
 
@@ -17,9 +22,21 @@ extern GXFifoObj* lbl_804D76C4; //DefaultFifoObj
 
 extern s32 lbl_804D76CC; //init_done
 
+
+
+#ifndef USE_ASM_VERSION
+
+
+
+#ifdef NON_MATCHING
+void HSD_InitComponent(void)
+{
+
+}
+#else
 asm void HSD_InitComponent(void)
 {
-    nofralloc
+nofralloc
 /* 80374E48 00371A28  7C 08 02 A6 */	mflr r0
 /* 80374E4C 00371A2C  3C 60 80 4C */	lis r3, lbl_804C0948@ha
 /* 80374E50 00371A30  90 01 00 04 */	stw r0, 4(r1)
@@ -91,14 +108,42 @@ asm void HSD_InitComponent(void)
 /* 80374F58 00371B38  7C 08 03 A6 */	mtlr r0
 /* 80374F5C 00371B3C  4E 80 00 20 */	blr 
 }
+#endif
 
 void HSD_GXSetFifoObj(GXFifoObj* fifo) 
 {
-    lbl_804C0954.gxfifo = lbl_804D5E0C;
-    lbl_804D76C4 = fifo;
+	lbl_804C0954.gxfifo = lbl_804D5E0C;
+	lbl_804D76C4 = fifo;
 }
 
 void HSD_DVDInit(void)
 {
-    return;
+	return;
 }
+
+
+
+#else   // ASM
+
+
+
+asm void HSD_GXSetFifoObj(GXFifoObj* fifo) 
+{
+nofrealloc
+/* 80374F60 00371B40  3C 80 80 4C */	lis r4, lbl_804C0954@ha
+/* 80374F64 00371B44  80 0D A7 6C */	lwz r0, lbl_804D5E0C-_SDA_BASE_(r13)
+/* 80374F68 00371B48  38 84 09 54 */	addi r4, r4, lbl_804C0954@l
+/* 80374F6C 00371B4C  90 04 00 0C */	stw r0, 0xc(r4)
+/* 80374F70 00371B50  90 6D C0 24 */	stw r3, lbl_804D76C4-_SDA_BASE_(r13)
+/* 80374F74 00371B54  4E 80 00 20 */	blr 
+}
+
+asm void HSD_DVDInit(void)
+{
+nofrealloc
+/* 80374F78 00371B58  4E 80 00 20 */	blr 
+}
+
+
+
+#endif

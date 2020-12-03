@@ -1,62 +1,79 @@
+// Parent Header
 #include "id.h"
 
-extern HSD_ObjAllocData lbl_804C23C0; // hsd_iddata
 
-extern struct _HSD_IDTable lbl_804C23EC; // default_table
+
+extern HSD_ObjAllocData lbl_804C23C0; // hsd_iddata
+extern HSD_IDTable      lbl_804C23EC; // default_table
 
 extern char* lbl_804D5EE8; // "id.c"
 extern char* lbl_804D5EF0;
 
+
+
+#ifndef USE_ASM_VERSION
+
+
+
 HSD_ObjAllocData* HSD_IDGetAllocData(void)
 {
-    return &lbl_804C23C0;
+	return &lbl_804C23C0;
 }
 
 void HSD_IDInitAllocData(void)
 {
-    HSD_ObjAllocInit(&lbl_804C23C0, sizeof(IDEntry), 4);
+	HSD_ObjAllocInit(&lbl_804C23C0, sizeof(IDEntry), 4);
 }
 
 void HSD_IDSetup(void)
 {
-    memset(&lbl_804C23EC, 0, 0x194); // The partial memset doesn't quite make sense, but it matches
+	memset(&lbl_804C23EC, 0, 0x194); // The partial memset doesn't quite make sense, but it matches
 }
 
 #ifdef NON_MATCHING
 void HSD_IDInsertToTable(HSD_IDTable* table, u32 id, void* data)
 {
-    IDEntry* entry;
-    u32 hash_key;
+	IDEntry* entry;
+	u32 hash_key;
 
-    if (table == NULL) {
-        table = &lbl_804C23EC;
-    }
+	if (table == NULL) 
+	{
+		table = &lbl_804C23EC;
+	}
 
-    hash_key = hash(id);
-    entry = &table->table[hash_key];
+	hash_key = hash(id);
 
-    while (entry != NULL && entry->id != id) {
-        entry = entry->next;
-    }
+	entry = &table->table[hash_key];
 
-    if (entry == NULL) {
-        entry = HSD_ObjAlloc(&lbl_804C23C0);
-        if (entry == NULL) {
-            func_80388220(lbl_804D5EE8, 67, lbl_804D5EF0);
-        }
-        entry->id = id;
-        entry->data = data;
-        entry->next = &table->table[hash_key];
-        table->table[hash_key].next = entry;
-    } else {
-        entry->id = id;
-        entry->data = data;
-    }
+	while (entry != NULL && entry->id != id) 
+	{
+		entry = entry->next;
+	}
+
+	if (entry == NULL) 
+	{
+		entry = HSD_ObjAlloc(&lbl_804C23C0);
+
+		if (entry == NULL) 
+		{
+			func_80388220(lbl_804D5EE8, 67, lbl_804D5EF0);
+		}
+
+		entry->id = id;
+		entry->data = data;
+		entry->next = &table->table[hash_key];
+		table->table[hash_key].next = entry;
+	} 
+	else 
+	{
+		entry->id = id;
+		entry->data = data;
+	}
 }
 #else
 asm void HSD_IDInsertToTable(HSD_IDTable* table, u32 id, void* data)
 {
-    nofralloc
+nofralloc
 /* 8037CDEC 003799CC  7C 08 02 A6 */	mflr r0
 /* 8037CDF0 003799D0  28 03 00 00 */	cmplwi r3, 0
 /* 8037CDF4 003799D4  90 01 00 04 */	stw r0, 4(r1)
@@ -132,7 +149,7 @@ lbl_8037CEC8:
 
 asm void HSD_IDRemoveByIDFromTable(HSD_IDTable* table, u32 id)
 {
-    nofralloc
+nofralloc
 /* 8037CEE8 00379AC8  7C 08 02 A6 */	mflr r0
 /* 8037CEEC 00379ACC  28 03 00 00 */	cmplwi r3, 0
 /* 8037CEF0 00379AD0  90 01 00 04 */	stw r0, 4(r1)
@@ -190,31 +207,157 @@ lbl_8037CF88:
 #pragma peephole on
 void* HSD_IDGetDataFromTable(HSD_IDTable* table, u32 id, s32* success)
 {
-    IDEntry* entry;
+	IDEntry* entry;
 
-    if (table == NULL) {
-        table = &lbl_804C23EC;
-    }
+	if (table == NULL) 
+	{
+		table = &lbl_804C23EC;
+	}
 
-    entry = (&table->table[0].next)[hash(id)];
-    while (entry != NULL) {
-        if (entry->id == id) {
-            if (success != NULL) {
-                *success = 1;
-            }
-            return entry->data;
-        }
-        entry = entry->next;
-    }
+	entry = (&table->table[0].next)[hash(id)];
 
-    if (success != NULL) {
-        *success = 0;
-    }
-    return NULL;
+	while (entry != NULL) 
+	{
+		if (entry->id == id) 
+		{
+			if (success != NULL) 
+			{
+				*success = 1;
+			}
+
+			return entry->data;
+		}
+
+		entry = entry->next;
+	}
+
+	if (success != NULL) 
+	{
+		*success = 0;
+	}
+
+	return NULL;
 }
 
 void _HSD_IDForgetMemory(void)
 {
-    memset(&lbl_804C23EC, 0, 0x194);
+	memset(&lbl_804C23EC, 0, 0x194);
 }
 #pragma pop
+
+
+
+#else   // ASM
+
+
+
+asm HSD_ObjAllocData* HSD_IDGetAllocData(void)
+{
+nofrealloc
+/* 8037CD80 00379960  3C 60 80 4C */	lis r3, lbl_804C23C0@ha
+/* 8037CD84 00379964  38 63 23 C0 */	addi r3, r3, lbl_804C23C0@l
+/* 8037CD88 00379968  4E 80 00 20 */	blr 
+}
+
+asm void HSD_IDInitAllocData(void)
+{
+nofrealloc
+/* 8037CD8C 0037996C  7C 08 02 A6 */	mflr r0
+/* 8037CD90 00379970  3C 60 80 4C */	lis r3, lbl_804C23C0@ha
+/* 8037CD94 00379974  90 01 00 04 */	stw r0, 4(r1)
+/* 8037CD98 00379978  38 63 23 C0 */	addi r3, r3, lbl_804C23C0@l
+/* 8037CD9C 0037997C  38 80 00 0C */	li r4, 0xc
+/* 8037CDA0 00379980  94 21 FF F8 */	stwu r1, -8(r1)
+/* 8037CDA4 00379984  38 A0 00 04 */	li r5, 4
+/* 8037CDA8 00379988  4B FF DF A1 */	bl func_8037AD48
+/* 8037CDAC 0037998C  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 8037CDB0 00379990  38 21 00 08 */	addi r1, r1, 8
+/* 8037CDB4 00379994  7C 08 03 A6 */	mtlr r0
+/* 8037CDB8 00379998  4E 80 00 20 */	blr 
+}
+
+asm void HSD_IDSetup(void)
+{
+nofrealloc
+/* 8037CDBC 0037999C  7C 08 02 A6 */	mflr r0
+/* 8037CDC0 003799A0  3C 60 80 4C */	lis r3, lbl_804C23EC@ha
+/* 8037CDC4 003799A4  90 01 00 04 */	stw r0, 4(r1)
+/* 8037CDC8 003799A8  38 63 23 EC */	addi r3, r3, lbl_804C23EC@l
+/* 8037CDCC 003799AC  38 80 00 00 */	li r4, 0
+/* 8037CDD0 003799B0  94 21 FF F8 */	stwu r1, -8(r1)
+/* 8037CDD4 003799B4  38 A0 01 94 */	li r5, 0x194
+/* 8037CDD8 003799B8  4B C8 63 29 */	bl func_80003100
+/* 8037CDDC 003799BC  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 8037CDE0 003799C0  38 21 00 08 */	addi r1, r1, 8
+/* 8037CDE4 003799C4  7C 08 03 A6 */	mtlr r0
+/* 8037CDE8 003799C8  4E 80 00 20 */	blr 
+}
+
+#pragma push
+#pragma peephole on
+asm void* HSD_IDGetDataFromTable(HSD_IDTable* table, u32 id, s32* success)
+{
+nofrealloc
+/* 8037CF98 00379B78  28 03 00 00 */	cmplwi r3, 0
+/* 8037CF9C 00379B7C  40 82 00 0C */	bne lbl_8037CFA8
+/* 8037CFA0 00379B80  3C 60 80 4C */	lis r3, lbl_804C23EC@ha
+/* 8037CFA4 00379B84  38 63 23 EC */	addi r3, r3, lbl_804C23EC@l
+lbl_8037CFA8:
+/* 8037CFA8 00379B88  3C C0 44 70 */	lis r6, 0x446F8657@ha
+/* 8037CFAC 00379B8C  38 06 86 57 */	addi r0, r6, 0x446F8657@l
+/* 8037CFB0 00379B90  7C C0 20 16 */	mulhwu r6, r0, r4
+/* 8037CFB4 00379B94  7C 06 20 50 */	subf r0, r6, r4
+/* 8037CFB8 00379B98  54 00 F8 7E */	srwi r0, r0, 1
+/* 8037CFBC 00379B9C  7C 00 32 14 */	add r0, r0, r6
+/* 8037CFC0 00379BA0  54 00 D1 BE */	srwi r0, r0, 6
+/* 8037CFC4 00379BA4  1C 00 00 65 */	mulli r0, r0, 0x65
+/* 8037CFC8 00379BA8  7C 00 20 50 */	subf r0, r0, r4
+/* 8037CFCC 00379BAC  54 00 10 3A */	slwi r0, r0, 2
+/* 8037CFD0 00379BB0  7C 63 00 2E */	lwzx r3, r3, r0
+/* 8037CFD4 00379BB4  48 00 00 2C */	b lbl_8037D000
+lbl_8037CFD8:
+/* 8037CFD8 00379BB8  80 03 00 04 */	lwz r0, 4(r3)
+/* 8037CFDC 00379BBC  7C 00 20 40 */	cmplw r0, r4
+/* 8037CFE0 00379BC0  40 82 00 1C */	bne lbl_8037CFFC
+/* 8037CFE4 00379BC4  28 05 00 00 */	cmplwi r5, 0
+/* 8037CFE8 00379BC8  41 82 00 0C */	beq lbl_8037CFF4
+/* 8037CFEC 00379BCC  38 00 00 01 */	li r0, 1
+/* 8037CFF0 00379BD0  90 05 00 00 */	stw r0, 0(r5)
+lbl_8037CFF4:
+/* 8037CFF4 00379BD4  80 63 00 08 */	lwz r3, 8(r3)
+/* 8037CFF8 00379BD8  4E 80 00 20 */	blr 
+lbl_8037CFFC:
+/* 8037CFFC 00379BDC  80 63 00 00 */	lwz r3, 0(r3)
+lbl_8037D000:
+/* 8037D000 00379BE0  28 03 00 00 */	cmplwi r3, 0
+/* 8037D004 00379BE4  40 82 FF D4 */	bne lbl_8037CFD8
+/* 8037D008 00379BE8  28 05 00 00 */	cmplwi r5, 0
+/* 8037D00C 00379BEC  41 82 00 0C */	beq lbl_8037D018
+/* 8037D010 00379BF0  38 00 00 00 */	li r0, 0
+/* 8037D014 00379BF4  90 05 00 00 */	stw r0, 0(r5)
+lbl_8037D018:
+/* 8037D018 00379BF8  38 60 00 00 */	li r3, 0
+/* 8037D01C 00379BFC  4E 80 00 20 */	blr 
+/* 8037D020 00379C00  7C 08 02 A6 */	mflr r0
+/* 8037D024 00379C04  3C 60 80 4C */	lis r3, lbl_804C23EC@ha
+/* 8037D028 00379C08  90 01 00 04 */	stw r0, 4(r1)
+/* 8037D02C 00379C0C  38 63 23 EC */	addi r3, r3, lbl_804C23EC@l
+/* 8037D030 00379C10  38 80 00 00 */	li r4, 0
+/* 8037D034 00379C14  94 21 FF F8 */	stwu r1, -8(r1)
+/* 8037D038 00379C18  38 A0 01 94 */	li r5, 0x194
+/* 8037D03C 00379C1C  4B C8 60 C5 */	bl func_80003100
+/* 8037D040 00379C20  80 01 00 0C */	lwz r0, 0xc(r1)
+/* 8037D044 00379C24  38 21 00 08 */	addi r1, r1, 8
+/* 8037D048 00379C28  7C 08 03 A6 */	mtlr r0
+/* 8037D04C 00379C2C  4E 80 00 20 */	blr 
+}
+
+asm void _HSD_IDForgetMemory(void)
+{
+nofrealloc
+}
+#pragma pop
+
+
+
+#endif

@@ -1,28 +1,40 @@
 #include "random.h"
 
-extern u32 lbl_804D5F90; // seed
-extern u32* lbl_804D5F94; // seed_ptr
-extern const f32 lbl_804DE790;
-extern const f32 lbl_804DE798; // USHRT_MAX
+
+
+extern       u32  lbl_804D5F90; // seed
+extern       u32* lbl_804D5F94; // seed_ptr
+extern const f32  lbl_804DE790;
+extern const f32  lbl_804DE798; // USHRT_MAX
+
+
+
+#ifndef USE_ASM_VERSION
+
+
 
 s32 HSD_Rand(void)
 {
-    *lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
-    return *lbl_804D5F94 >> 0x10;
+	*lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
+
+	return *lbl_804D5F94 >> 0x10;
 }
 
 #ifdef NON_MATCHING
 f32 HSD_Randf(void)
 {
-    s32 temp;
-    *lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
-    temp = (f32)(*lbl_804D5F94 >> 0x10);
-    return (f32)(*lbl_804D5F94 >> 0x10) / lbl_804DE798;
+	s32 temp;
+
+	*lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
+
+	temp = (f32)(*lbl_804D5F94 >> 0x10);
+
+	return (f32)(*lbl_804D5F94 >> 0x10) / lbl_804DE798;
 }
 #else
 asm f32 HSD_Randf(void)
 {
-    nofralloc
+nofralloc
 /* 80380528 0037D108  94 21 FF F0 */	stwu r1, -0x10(r1)
 /* 8038052C 0037D10C  3C 60 00 03 */	lis r3, 0x000343FD@ha
 /* 80380530 0037D110  38 63 43 FD */	addi r3, r3, 0x000343FD@l
@@ -51,15 +63,18 @@ asm f32 HSD_Randf(void)
 #ifdef NON_MATCHING
 s32 HSD_Randi(s32 max_val)
 {
-    s32 temp;
-    *lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
-    temp = max_val * (*lbl_804D5F94 >> 0x10);
-    return temp / lbl_804DE798;
+	s32 temp;
+
+	*lbl_804D5F94 = *lbl_804D5F94 * 214013 + 2531011;
+
+	temp = max_val * (*lbl_804D5F94 >> 0x10);
+
+	return temp / lbl_804DE798;
 }
 #else
 asm s32 HSD_Randi(s32 max_val)
 {
-    nofralloc
+nofralloc
 /* 80380580 0037D160  80 AD A8 F4 */	lwz r5, lbl_804D5F94(r13)
 /* 80380584 0037D164  3C 80 00 03 */	lis r4, 0x000343FD@ha
 /* 80380588 0037D168  38 04 43 FD */	addi r0, r4, 0x000343FD@l
@@ -83,9 +98,55 @@ asm s32 HSD_Randi(s32 max_val)
 #pragma peephole on
 void _HSD_RandForgetMemory(u32* low, u32* high)
 {
-    if (low <= lbl_804D5F94 && lbl_804D5F94 < high){
-        lbl_804D5F94 = &lbl_804D5F90;
-    }
-    return;
+	if (low <= lbl_804D5F94 && lbl_804D5F94 < high)
+	{
+		lbl_804D5F94 = &lbl_804D5F90;
+	}
+
+	return;
 }
 #pragma pop
+
+
+
+#else   // ASM
+
+
+
+asm s32 HSD_Rand(void)
+{
+nofralloc
+/* 803804F8 0037D0D8  80 8D A8 F4 */	lwz r4, lbl_804D5F94-_SDA_BASE_(r13)
+/* 803804FC 0037D0DC  3C 60 00 03 */	lis r3, 0x000343FD@ha
+/* 80380500 0037D0E0  38 03 43 FD */	addi r0, r3, 0x000343FD@l
+/* 80380504 0037D0E4  80 64 00 00 */	lwz r3, 0(r4)
+/* 80380508 0037D0E8  7C 63 01 D6 */	mullw r3, r3, r0
+/* 8038050C 0037D0EC  3C 63 00 27 */	addis r3, r3, 0x27
+/* 80380510 0037D0F0  38 03 9E C3 */	addi r0, r3, -24893
+/* 80380514 0037D0F4  90 04 00 00 */	stw r0, 0(r4)
+/* 80380518 0037D0F8  80 6D A8 F4 */	lwz r3, lbl_804D5F94-_SDA_BASE_(r13)
+/* 8038051C 0037D0FC  80 03 00 00 */	lwz r0, 0(r3)
+/* 80380520 0037D100  54 03 84 3E */	srwi r3, r0, 0x10
+/* 80380524 0037D104  4E 80 00 20 */	blr 
+}
+
+#pragma push 
+#pragma force_active on
+#pragma peephole on
+asm void _HSD_RandForgetMemory(u32* low, u32* high)
+{
+nofralloc
+/* 803805BC 0037D19C  80 0D A8 F4 */	lwz r0, lbl_804D5F94-_SDA_BASE_(r13)
+/* 803805C0 0037D1A0  7C 03 00 40 */	cmplw r3, r0
+/* 803805C4 0037D1A4  4D 81 00 20 */	bgtlr 
+/* 803805C8 0037D1A8  7C 00 20 40 */	cmplw r0, r4
+/* 803805CC 0037D1AC  4C 80 00 20 */	bgelr 
+/* 803805D0 0037D1B0  38 0D A8 F0 */	addi r0, r13, lbl_804D5F90-_SDA_BASE_
+/* 803805D4 0037D1B4  90 0D A8 F4 */	stw r0, lbl_804D5F94-_SDA_BASE_(r13)
+/* 803805D8 0037D1B8  4E 80 00 20 */	blr 
+}
+#pragma pop
+
+
+
+#endif
